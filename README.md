@@ -1,6 +1,6 @@
 <h1 align = "center">Wordle Solver</h1>
 
-This is a portable version of 3B1B's visualized solver for [wordle](https://www.powerlanguage.co.uk/wordle/) with all bugs fixed.
+This is a portable version of [3B1B's visualized solver](https://github.com/3b1b/videos/tree/master/_2022/wordle) for [wordle](https://www.powerlanguage.co.uk/wordle/) with all bugs fixed.
 
 ## Prerequisites
 
@@ -16,24 +16,18 @@ manimgl
 
 ## Usage
 
-1. (must) Create an empty folder `data/wordle` .
+Just run wordle-solver:
 
-2. Run `wordle.py` to get `data/wordle/pattern_matrix.npy` :
+```shell
+manimgl wordle/scenes.py InitialDemo
+```
 
-   ```shell
-   python wordle.py
-   ```
+This step may take some minutes for the first time, but the `pattern_matrix.npy` results will be saved under `data/` so that there is no need for generation henceforth.
 
-   This step may take some minutes, but the results will be saved so that it is only needed for the first time.
-
-3. Run wordle-solver:
-
-   ```shell
-   manimgl wordle.py InitialDemo
-   ```
-
-   Then input the suggested start word `crane` on the pop-up window with its feedback `gray` / `yellow` / `green` mapped to `0` / `1` / `2` , finished with `Enter` , loop until the problem is cracked.
+Then input the suggested start word `crane` on the pop-up window with its feedback `gray` / `yellow` / `green` mapped to `0` / `1` / `2` , finished with `Enter` , loop until the puzzle is cracked.
 
 ## Example
+
+Type in `CRANE` - `01000` - `Enter` , take the top pick word `TORUS` - `01110` - `Enter` ... 
 
 ![example](https://github.com/Tequila-Sunrise/Image-Hosting/blob/main/Wordle-Solver/wordle-solver.jpg)
