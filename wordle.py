@@ -2,7 +2,7 @@ import sys
 from tqdm import tqdm as ProgressDisplay
 from scipy.stats import entropy
 
-sys.path.append(".")
+sys.path.append('./')
 
 from manim_imports_ext import *
 
