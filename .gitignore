@@ -114,7 +114,7 @@ dmypy.json
 .pyre/
 
 # Pattern matrix
-data/
+pattern_matrix.npy
 
 # Wordle cache
 manim_cache/
