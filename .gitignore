@@ -113,5 +113,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Pattern matrix
+data/
+
 # Wordle cache
 manim_cache/
