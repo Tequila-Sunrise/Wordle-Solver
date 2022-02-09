@@ -31,3 +31,7 @@ Then input the suggested start word `crane` on the pop-up window with its feedba
 Type in `CRANE` - `01000` - `Enter` , take the top pick word `TORUS` - `01110` - `Enter` ... 
 
 ![example](https://github.com/Tequila-Sunrise/Image-Hosting/blob/main/Wordle-Solver/wordle-solver.jpg)
+
+## References
+
+1. [Solving Wordle using information theory](https://www.youtube.com/watch?v=v68zYyaEmEA) by 3B1B.
