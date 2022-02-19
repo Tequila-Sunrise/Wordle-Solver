@@ -1,6 +1,6 @@
 <h1 align = "center">Wordle Solver</h1>
 
-This is a portable version of [3B1B's visualized solver](https://github.com/3b1b/videos/tree/master/_2022/wordle) for [wordle](https://www.powerlanguage.co.uk/wordle/) with all bugs fixed.
+This is a portable version of [3B1B's visualized solver](https://github.com/3b1b/videos/tree/master/_2022/wordle) for [wordle](https://www.nytimes.com/games/wordle/index.html) with all bugs fixed.
 
 ## Prerequisites
 
