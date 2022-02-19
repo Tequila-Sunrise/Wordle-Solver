@@ -1,7 +1,7 @@
 import sys
 
 sys.path.append('./')
-sys.path.append('../')
+sys.path.append('./wordle/')
 from manim_imports_ext import *
 from simulations import *
 
@@ -12,7 +12,7 @@ from simulations import *
 class WordleScene(Scene):
     n_letters = 5
     grid_height = 6
-    font_to_grid_height_ratio = 10
+    font_to_square_height = 65
     grid_center = ORIGIN
     secret_word = None
     color_map = {
@@ -91,11 +91,14 @@ class WordleScene(Scene):
         if len(grid.pending_word) == len(grid[0]):
             return
 
-        font_size = self.font_to_grid_height_ratio * self.grid_height
-        letter_mob = Text(letter.upper(), font="Consolas", font_size=font_size)
-        letter_mob.move_to(self.get_curr_square())
-
+        letter_mob = self.get_letter_in_square(letter, self.get_curr_square())
         grid.pending_word.add(letter_mob)
+
+    def get_letter_in_square(self, letter, square):
+        font_size = self.font_to_square_height * square.get_height()
+        letter_mob = Text(letter.upper(), font="Consolas", font_size=font_size)
+        letter_mob.move_to(square)
+        return letter_mob
 
     def delete_letter(self):
         if len(self.grid.pending_word) == 0:
@@ -194,6 +197,7 @@ class WordleScene(Scene):
             if isinstance(mob, Square) and alpha > 0.5:
                 mob.set_fill(mob.future_color, 1)
 
+        mobjects = self.mobjects
         self.play(
             *(
                 LaggedStart(
@@ -208,8 +212,8 @@ class WordleScene(Scene):
             ),
             *added_anims
         )
-        self.remove(row, word)
-        self.add(self.grid)
+        self.clear()
+        self.add(*mobjects)
 
     def get_colors(self, pattern):
         return [self.color_map[key] for key in pattern_to_int_list(pattern)]
@@ -355,7 +359,7 @@ class WordleSceneWithAnalysis(WordleScene):
             first = title.family_members_with_points()[0]
             title.shift((low_y - first.get_bottom()[1]) * UP)
             underline = Underline(title)
-            # underline.match_y(first.get_bottom() + 0.025 * DOWN)
+            underline.match_y(first.get_bottom() + 0.025 * DOWN)
             underline.set_stroke(WHITE, 2)
             underline.scale(1.1)
             title.add_to_back(underline)
@@ -416,10 +420,10 @@ class WordleSceneWithAnalysis(WordleScene):
         if not did_fill:
             return False
 
-        # if self.presenter_mode:
-        #     while self.wait_to_proceed:
-        #         self.update_frame(1 / self.camera.frame_rate)
-        #     self.wait_to_proceed = True
+        if self.presenter_mode:
+            while self.wait_to_proceed:
+                self.update_frame(1 / self.camera.frame_rate)
+            self.wait_to_proceed = True
 
         if is_valid_guess and not self.has_won():
             self.show_possible_words()
@@ -2856,6 +2860,10 @@ class ShowWordLikelihoods(Scene):
         )
         self.wait()
 
+        self.bars = bars
+        self.decs = decs
+        self.word_mobs = word_mobs
+
 
 class SidewaysWordProbabilities(Scene):
     CONFIG = {"random_seed": 5}
@@ -3577,7 +3585,7 @@ class HowLookTwoAheadWorks(Scene):
 
         # Reminder on entropy
         H_eq = Tex(
-            "H = E[I] = \\sum_{x} p(x) \\cdot \\log_2\\big((1 / p(x)\\big)",
+            "E[I] = \\sum_{x} p(x) \\cdot \\log_2\\big((1 / p(x)\\big)",
             font_size=36
         )
         H_eq.next_to(prob_bars1, RIGHT)
@@ -3698,7 +3706,7 @@ class HowLookTwoAheadWorks(Scene):
         patterns = patterns[:n_shown]  # Only show non-zero possibilities
 
         top_parts = VGroup(*(self.get_pattern_mob(p) for p in patterns[:n_shown]))
-        dot_parts = Tex("\\vdots\\\\", "3^5 \\text{ patterns}\\\\", "\\vdots")
+        dot_parts = Tex("\\vdots\\\\", "\\le 3^5 \\text{ patterns}\\\\", "\\vdots")
 
         for prob, row in zip(dist[indices][:n_shown], top_parts):
             row.prob = prob
@@ -3771,7 +3779,7 @@ class HowLookTwoAheadWorks(Scene):
     def get_entropy_label(self, word_mob, distribution):
         ent2 = entropy_of_distributions(distribution)
         kw = dict(font_size=24)
-        h_label = VGroup(Tex(f"H = ", **kw), DecimalNumber(ent2, **kw))
+        h_label = VGroup(Tex(f"E[I] = ", **kw), DecimalNumber(ent2, **kw))
         h_label.set_color(self.entropy_color)
         h_label.arrange(RIGHT, buff=SMALL_BUFF, aligned_edge=UP)
         h_label.move_to(word_mob)
@@ -3781,11 +3789,12 @@ class HowLookTwoAheadWorks(Scene):
 
     def get_info_label(self, bar):
         result = VGroup(
-            DecimalNumber(bar.prob, num_decimal_places=3),
-            Tex("\\cdot \\log_2\\big( 1 / "),
+            # DecimalNumber(bar.prob, num_decimal_places=3),
+            Tex("\\log_2\\big( 1 / "),
             DecimalNumber(bar.prob, num_decimal_places=3),
             Tex("\\big) = "),
-            DecimalNumber(-bar.prob * math.log2(bar.prob), num_decimal_places=3)
+            # DecimalNumber(-bar.prob * math.log2(bar.prob), num_decimal_places=3)
+            DecimalNumber(-math.log2(bar.prob), num_decimal_places=3)
         )
         result.arrange(RIGHT, buff=SMALL_BUFF)
         result.set_height(bar.get_height())
@@ -3794,20 +3803,6 @@ class HowLookTwoAheadWorks(Scene):
         arrow = Arrow(bar.label.get_right(), result, stroke_width=2, buff=SMALL_BUFF)
         result.add_to_back(arrow)
         return result
-
-
-class TwoStepLookAheadWithSalet(HowLookTwoAheadWorks):
-    first_guess = "salet"
-    n_shown_trials = 120
-    transition_time = 0.01
-
-    def get_priors(self):
-        return get_true_wordle_prior()
-
-
-class TwoStepLookAheadWithSlane(TwoStepLookAheadWithSalet):
-    first_guess = "slane"
-    n_shown_trials = 60
 
 
 class BestDoubleEntropies(Scene):
@@ -4041,7 +4036,7 @@ class ShowScoreDistribution(Scene):
         axes = self.get_axes()
         self.add(axes)
 
-        with open(os.path.join(DATA_DIR, self.data_file)) as fp:
+        with open(os.path.join(DATA_DIR, "simulation_results", self.data_file)) as fp:
             game_data = json.load(fp)
         games = game_data["game_results"]
         scores = [game["score"] for game in games]
@@ -4161,7 +4156,9 @@ class ShowScoreDistribution(Scene):
             self.get_bar(axes, n + 1, prop)
             for n, prop in enumerate(props)
         ))
-        bars.set_submobject_colors_by_gradient(BLUE, YELLOW, RED)
+        colors = color_gradient([BLUE, YELLOW, RED], 8)
+        for bar, color in zip(bars, colors):
+            bar.set_fill(color, 1)
         bars.set_stroke(WHITE, 1)
         for bar, count in zip(bars, buckets):
             bar.add(self.get_bar_count(bar, count))
@@ -4268,41 +4265,14 @@ class Thumbnail(Scene):
         # self.add(words)
 
         # Title
-        # title = Text(
-        #     "Best opener: CRANE*",
-        #     font_size=100,
-        #     font="Consolas",
-        #     t2c={"crane": GREEN}
-        # )
-        # title.get_part_by_text("*").scale(0.5, about_edge=UL)
-        # title.to_edge(UP, buff=0.75)
-        # self.add(title)
-
-        # strike = Line()
-        # strike.replace(title.get_part_by_text("CRANE"), 0)
-        # strike.set_stroke(RED, 10)
-        # strike.scale(1.2)
-        # # self.add(strike)
-
-        # footnote = Text(
-        #     "*See pinned comment for an update",
-        #     font="Consolas",
-        #     font_size=36
-        # )
-        # footnote.to_edge(DOWN, buff=MED_SMALL_BUFF)
-        # footnote.set_color(GREY_B)
-        # self.add(footnote)
-
-        # return
-
-        rows.to_edge(DOWN, buff=0.5)
-        title = VGroup(
-            # Text("Bot's average: 3.43", font="Consolas"),
-            # Text("Theoretical best: 3.42", font="Consolas"),
-            Text("Average score: 3.43", font="Consolas"),
+        title = Text(
+            "Best opener: CRANE",
+            font_size=100,
+            font="Consolas",
+            t2c={"crane": GREEN}
         )
-        title.arrange(DOWN)
-        title.set_width(10)
-        title.move_to(midpoint(rows.get_top(), FRAME_HEIGHT * UP / 2))
-
+        title.to_edge(UP, buff=0.75)
         self.add(title)
+
+        self.rows = rows
+        self.title = title
