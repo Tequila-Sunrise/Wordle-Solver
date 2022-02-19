@@ -16,7 +16,7 @@ manimgl
 
 ## Usage
 
-Just run wordle-solver:
+Open terminal under `Wordle-Solver/` :
 
 ```shell
 manimgl wordle/scenes.py InitialDemo
@@ -25,6 +25,8 @@ manimgl wordle/scenes.py InitialDemo
 This step may take some minutes for the first time, but the `pattern_matrix.npy` results will be saved under `data/` so that there is no need for generation henceforth.
 
 Then input the suggested start word `crane` on the pop-up window with its feedback `gray` / `yellow` / `green` mapped to `0` / `1` / `2` , finished with `Enter` , loop until the puzzle is cracked.
+
+Enjoy Wordle Cracker!
 
 ## Example
 
